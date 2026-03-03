@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   UserIcon, 
   BuildingOfficeIcon, 
@@ -8,34 +8,31 @@ import {
 } from '@heroicons/react/24/outline';
 
 const RoleSelect = () => {
+  const navigate = useNavigate();
   const roles = [
     {
-      id: 'individual',
+      id: 'seller',
       title: 'Individual User',
       description: 'Recycle personal electronics and track your environmental impact',
-      icon: UserIcon,
-      href: '/dashboard/individual'
+      icon: UserIcon
     },
     {
       id: 'corporate',
       title: 'Corporate User',
       description: 'Manage company e-waste recycling programs and compliance',
-      icon: BuildingOfficeIcon,
-      href: '/dashboard/individual'
+      icon: BuildingOfficeIcon
     },
     {
       id: 'recycler',
       title: 'Recycler',
       description: 'Process e-waste and manage recycling operations',
-      icon: ArrowPathIcon,
-      href: '/dashboard/recycler'
+      icon: ArrowPathIcon
     },
     {
       id: 'admin',
       title: 'Admin',
       description: 'Oversee platform operations and user management',
-      icon: ShieldCheckIcon,
-      href: '/dashboard/admin'
+      icon: ShieldCheckIcon
     }
   ];
 
@@ -58,11 +55,29 @@ const RoleSelect = () => {
           {roles.map((role, index) => {
             const IconComponent = role.icon;
             return (
-              <Link
+              <div
                 key={role.id}
-                to={role.href}
-                className="role-card animate-slide-up"
+                className="role-card animate-slide-up cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => {
+                  localStorage.setItem('userRole', role.id);
+                  switch (role.id) {
+                    case 'seller':
+                      navigate('/dashboard');
+                      break;
+                    case 'corporate':
+                      navigate('/corporate');
+                      break;
+                    case 'recycler':
+                      navigate('/recycler');
+                      break;
+                    case 'admin':
+                      navigate('/admin');
+                      break;
+                    default:
+                      navigate('/dashboard');
+                  }
+                }}
               >
                 <div className="role-card-icon">
                   <IconComponent />
@@ -79,21 +94,15 @@ const RoleSelect = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
 
         <div className="text-center">
-          <Link
-            to="/"
-            className="back-link"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Login
-          </Link>
+          <p className="form-signup-text">
+            Select your role to get started with EcoTrace AI
+          </p>
         </div>
       </div>
     </div>

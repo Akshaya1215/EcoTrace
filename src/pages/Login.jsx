@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 const Login = () => {
@@ -17,10 +17,17 @@ const Login = () => {
     });
   };
 
+  const navigate = useNavigate();
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, handle login logic here
-    window.location.href = '/role-select';
+    // store selected role as userRole (optional when logging in)
+    if (formData.role) {
+      localStorage.setItem('userRole', formData.role);
+    }
+    // mark the user as authenticated so RoleBasedDashboard allows access
+    localStorage.setItem('isAuthenticated', 'true');
+    navigate('/dashboard');
   };
 
   return (
@@ -121,9 +128,9 @@ const Login = () => {
           <div className="form-signup">
             <p className="form-signup-text">
               Don't have an account?{' '}
-              <a href="#" className="form-link">
+              <Link to="/role-select" className="form-link">
                 Sign up
-              </a>
+              </Link>
             </p>
           </div>
         </div>

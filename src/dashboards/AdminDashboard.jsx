@@ -4,10 +4,10 @@ import CustomLineChart from '../components/LineChart';
 import CustomBarChart from '../components/BarChart';
 import DataTable from '../components/DataTable';
 import { 
-  UsersIcon, 
+  UserGroupIcon, 
   BuildingOfficeIcon, 
   CurrencyDollarIcon, 
-  GlobeAltIcon 
+  ChartBarIcon 
 } from '@heroicons/react/24/outline';
 
 const AdminDashboard = () => {

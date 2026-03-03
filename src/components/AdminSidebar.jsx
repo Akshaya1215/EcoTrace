@@ -1,30 +1,28 @@
-import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
-  CloudArrowUpIcon,
+  UserGroupIcon,
+  TruckIcon,
   DocumentTextIcon,
-  BanknotesIcon,
+  CurrencyDollarIcon,
   ChartBarIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
-  Bars3Icon,
-  XMarkIcon,
-  BellIcon,
-  UserCircleIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
-const DashboardLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard/individual', icon: HomeIcon },
-    { name: 'Upload Device', href: '/dashboard/upload', icon: CloudArrowUpIcon },
-    { name: 'My Listings', href: '/dashboard/listings', icon: DocumentTextIcon },
-    { name: 'Transactions', href: '/dashboard/transactions', icon: BanknotesIcon },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon },
-    { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+    { name: 'Dashboard', href: '/admin', icon: HomeIcon },
+    { name: 'Manage Users', href: '/admin/users', icon: UserGroupIcon },
+    { name: 'Recycler Approvals', href: '/admin/recyclers', icon: TruckIcon },
+    { name: 'Listings', href: '/admin/listings', icon: DocumentTextIcon },
+    { name: 'Transactions', href: '/admin/transactions', icon: CurrencyDollarIcon },
+    { name: 'Reports', href: '/admin/reports', icon: ChartBarIcon },
+    { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
   ];
 
   const isActive = (href) => {
@@ -32,7 +30,7 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="app-container">
+    <>
       {/* Mobile sidebar backdrop */}
       <div 
         className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
@@ -47,7 +45,7 @@ const DashboardLayout = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <span className="sidebar-title">EcoTrace AI</span>
+          <span className="sidebar-title">EcoTrace Admin</span>
           <button
             onClick={() => setSidebarOpen(false)}
             className="mobile-menu-btn"
@@ -82,41 +80,8 @@ const DashboardLayout = () => {
           </Link>
         </div>
       </div>
-
-      {/* Main content */}
-      <div className="main-content">
-        {/* Top navigation */}
-        <div className="top-navbar">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="mobile-menu-btn"
-          >
-            <Bars3Icon className="w-6 h-6" />
-          </button>
-
-          <div className="profile-section">
-            <button className="notification-btn">
-              <BellIcon className="w-6 h-6" />
-            </button>
-            <div className="user-profile">
-              <div className="user-info">
-                <p className="user-name">John Doe</p>
-                <p className="user-role">Individual User</p>
-              </div>
-              <div className="user-avatar">
-                <UserCircleIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Page content */}
-        <main className="page-content">
-          <Outlet />
-        </main>
-      </div>
-    </div>
+    </>
   );
 };
 
-export default DashboardLayout;
+export default AdminSidebar;

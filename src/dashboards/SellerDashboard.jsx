@@ -1,53 +1,18 @@
 import React from 'react';
 import SummaryCard from '../components/SummaryCard';
 import CustomLineChart from '../components/LineChart';
-import CustomBarChart from '../components/BarChart';
 import DataTable from '../components/DataTable';
 import { 
-  DevicePhoneMobileIcon, 
   CurrencyDollarIcon, 
+  DevicePhoneMobileIcon, 
   SparklesIcon, 
-  ChartBarIcon 
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
-const IndividualDashboard = () => {
-  // Dummy data for summary cards
-  const summaryData = [
-    {
-      title: 'Devices Recycled',
-      value: '24',
-      change: '+12% from last month',
-      changeType: 'positive',
-      icon: DevicePhoneMobileIcon,
-      color: 'eco-green'
-    },
-    {
-      title: 'Total Earnings',
-      value: '$1,847',
-      change: '+8% from last month',
-      changeType: 'positive',
-      icon: CurrencyDollarIcon,
-      color: 'eco-blue'
-    },
-    {
-      title: 'CO₂ Saved',
-      value: '156 kg',
-      change: '+23% from last month',
-      changeType: 'positive',
-      icon: SparklesIcon,
-      color: 'eco-emerald'
-    },
-    {
-      title: 'Impact Score',
-      value: '892',
-      change: '+45 points',
-      changeType: 'positive',
-      icon: ChartBarIcon,
-      color: 'eco-purple'
-    }
-  ];
+const SellerDashboard = () => {
 
-  // Dummy data for line chart
+  
+
   const lineChartData = [
     { name: 'Jan', value: 400 },
     { name: 'Feb', value: 600 },
@@ -57,16 +22,6 @@ const IndividualDashboard = () => {
     { name: 'Jun', value: 900 }
   ];
 
-  // Dummy data for bar chart
-  const barChartData = [
-    { name: 'Phones', value: 12 },
-    { name: 'Laptops', value: 8 },
-    { name: 'Tablets', value: 4 },
-    { name: 'Monitors', value: 6 },
-    { name: 'Others', value: 3 }
-  ];
-
-  // Dummy data for table
   const tableData = [
     {
       id: '1',
@@ -128,43 +83,78 @@ const IndividualDashboard = () => {
 
   return (
     <div className="page-content">
-      {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title">Individual Dashboard</h1>
-        <p className="page-subtitle">Track your e-waste recycling impact and earnings</p>
+
+      {/* 🌍 HERO MOTIVATION SECTION */}
+      <div
+        style={{
+          position: 'relative',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          marginBottom: '40px',
+          backgroundImage:
+            "url('https://www.frost.com/growth-opportunity-news/top-5-growth-opportunities-in-the-global-e-waste-recycling-market/z')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '260px',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        <div
+          style={{
+            background: 'linear-gradient(90deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4))',
+            width: '100%',
+            padding: '50px',
+            color: 'white'
+          }}
+        >
+          <h1 style={{ fontSize: '34px', fontWeight: 700 }}>
+            Turn Your E-Waste into Income 💰
+          </h1>
+          <p style={{ fontSize: '18px', marginTop: '10px', maxWidth: '600px' }}>
+            Every device you recycle reduces pollution, saves resources,
+            and earns you money. Start selling smarter. Start selling sustainably.
+          </p>
+          <div style={{ marginTop: '20px' }}>
+            <span
+              style={{
+                background: '#22c55e',
+                padding: '10px 20px',
+                borderRadius: '30px',
+                fontWeight: 600
+              }}
+            >
+              🌱 Make Impact. Earn More.
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="dashboard-grid">
-        {summaryData.map((item, index) => (
-          <SummaryCard key={index} {...item} />
-        ))}
-      </div>
+      {/* SUMMARY CARDS */}
+     
 
-      {/* Charts Row */}
+      {/* MOTIVATION STRIP */}
+      
+        
+      {/* CHART */}
       <div className="charts-grid">
         <CustomLineChart
           data={lineChartData}
-          title="Monthly Earnings Trend"
+          title="Monthly Earnings Growth"
           dataKey="value"
           strokeColor="#22c55e"
         />
-        <CustomBarChart
-          data={barChartData}
-          title="Devices by Category"
-          dataKey="value"
-          fillColor="#16a34a"
-        />
       </div>
 
-      {/* Recent Activity Table */}
+      {/* TABLE */}
       <DataTable
         title="Recent Recycling Activity"
         data={tableData}
         columns={tableColumns}
       />
+
     </div>
   );
 };
 
-export default IndividualDashboard;
+export default SellerDashboard;

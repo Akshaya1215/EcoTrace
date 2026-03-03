@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
   CloudArrowUpIcon,
@@ -13,34 +13,69 @@ import {
   BellIcon,
   UserCircleIcon
 } from '@heroicons/react/24/outline';
+import SellerDashboard from './SellerDashboard';
+import UploadDevice from '../pages/seller/UploadDevice';
+import MyListings from '../pages/seller/MyListings';
+import ProfileSettings from '../pages/seller/ProfileSettings';
+import Transactions from '../pages/seller/Transactions';
+import RecyclerDashboard from './RecyclerDashboard';
+import ImpactRewards from '../pages/seller/ImpactRewards';
+import CorporateDashboard from './CorporateDashboard';
+import AdminDashboard from './AdminDashboard';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const role = localStorage.getItem('userRole');
 
   const navigation = [
-    { name: 'Home', href: '/dashboard/individual', icon: HomeIcon },
+    { name: 'Dashboard', href: '/dashboard/', icon: HomeIcon },
     { name: 'Upload Device', href: '/dashboard/upload', icon: CloudArrowUpIcon },
     { name: 'My Listings', href: '/dashboard/listings', icon: DocumentTextIcon },
     { name: 'Transactions', href: '/dashboard/transactions', icon: BanknotesIcon },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon },
-    { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+     { name: 'Impact Rewards', href: '/dashboard/ImpactRewards', icon: Cog6ToothIcon },
+    { name: 'Settings', href: '/dashboard/profile', icon: Cog6ToothIcon },
+   
   ];
 
   const isActive = (href) => {
     return location.pathname === href;
   };
 
+  const renderDashboardContent = () => {
+    switch (role) {
+      case 'seller':
+        return (
+          <Routes>
+            <Route index element={<SellerDashboard />} />
+            <Route path="upload" element={<UploadDevice />} />
+            <Route path="listings" element={<MyListings />} />
+            <Route path="profile" element={<ProfileSettings />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="ImpactRewards" element={<ImpactRewards />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        );
+      case 'recycler':
+        return <RecyclerDashboard />;
+      case 'corporate':
+        return <CorporateDashboard />;
+      case 'admin':
+        return <AdminDashboard />;
+      default:
+        return <Navigate to="/" replace />;
+    }
+  };
+
   return (
-    <div className="app-container">
-      {/* Mobile sidebar backdrop */}
+    <div className="dashboard-layout">
       <div 
         className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <div className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,10 +83,7 @@ const DashboardLayout = () => {
             </svg>
           </div>
           <span className="sidebar-title">EcoTrace AI</span>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="mobile-menu-btn"
-          >
+          <button onClick={() => setSidebarOpen(false)} className="mobile-menu-btn">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
@@ -64,8 +96,9 @@ const DashboardLayout = () => {
                 key={item.name}
                 to={item.href}
                 className={`sidebar-link ${isActive(item.href) ? 'active' : ''}`}
+                onClick={() => setSidebarOpen(false)}
               >
-                <IconComponent />
+                <IconComponent className="w-5 h-5" />
                 {item.name}
               </Link>
             );
@@ -73,24 +106,23 @@ const DashboardLayout = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <Link
-            to="/"
+          <button
+            onClick={() => {
+              localStorage.removeItem('userRole');
+              window.location.href = '/';
+            }}
             className="sidebar-link"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
           >
-            <ArrowRightOnRectangleIcon />
-            Sign Out
-          </Link>
+            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+            Sign out
+          </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="main-content">
-        {/* Top navigation */}
+      <div className="dashboard-main">
         <div className="top-navbar">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="mobile-menu-btn"
-          >
+          <button onClick={() => setSidebarOpen(true)} className="mobile-menu-btn">
             <Bars3Icon className="w-6 h-6" />
           </button>
 
@@ -98,21 +130,16 @@ const DashboardLayout = () => {
             <button className="notification-btn">
               <BellIcon className="w-6 h-6" />
             </button>
-            <div className="user-profile">
-              <div className="user-info">
-                <p className="user-name">John Doe</p>
-                <p className="user-role">Individual User</p>
-              </div>
-              <div className="user-avatar">
-                <UserCircleIcon className="w-6 h-6" />
-              </div>
+            <div className="topbar-profile" onClick={() => navigate('/dashboard/profile')} title="Open profile settings">
+              <UserCircleIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="page-content">
-          <Outlet />
+        <main className="dashboard-content">
+          <div className="page-transition">
+            {renderDashboardContent()}
+          </div>
         </main>
       </div>
     </div>
