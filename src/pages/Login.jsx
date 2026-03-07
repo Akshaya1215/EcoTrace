@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import Logo3D from '../components/Logo3D';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +36,7 @@ const Login = () => {
       <div className="login-container">
         <div className="login-header animate-fade-in">
           <div className="login-logo">
-            <SparklesIcon />
+            <Logo3D className="w-[80%] h-[80%]" />
           </div>
           <h1 className="login-title">EcoTrace AI</h1>
           <p className="login-subtitle">E-Waste Recycling Marketplace</p>
@@ -43,7 +44,7 @@ const Login = () => {
 
         <div className="login-card animate-slide-up">
           <h2 className="page-title">Welcome Back</h2>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="email" className="form-label">

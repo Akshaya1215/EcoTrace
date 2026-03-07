@@ -8,27 +8,34 @@ const CustomBarChart = ({ data, title, dataKey, fillColor }) => {
       <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="name" 
-              tick={{ fill: '#6b7280', fontSize: 12 }}
-              axisLine={{ stroke: '#e5e7eb' }}
+            <defs>
+              <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#E27D60" stopOpacity={1} />
+                <stop offset="100%" stopColor="#2D4F1E" stopOpacity={1} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(74, 74, 74, 0.1)" />
+            <XAxis
+              dataKey="name"
+              tick={{ fill: '#4A4A4A', fontSize: 12 }}
+              axisLine={{ stroke: 'rgba(74, 74, 74, 0.2)' }}
             />
-            <YAxis 
-              tick={{ fill: '#6b7280', fontSize: 12 }}
-              axisLine={{ stroke: '#e5e7eb' }}
+            <YAxis
+              tick={{ fill: '#4A4A4A', fontSize: 12 }}
+              axisLine={{ stroke: 'rgba(74, 74, 74, 0.2)' }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'white', 
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px'
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#F5E6CC',
+                border: '1px solid rgba(74, 74, 74, 0.2)',
+                borderRadius: '12px',
+                color: '#4A4A4A'
               }}
             />
-            <Bar 
-              dataKey={dataKey} 
-              fill={fillColor}
-              radius={[8, 8, 0, 0]}
+            <Bar
+              dataKey={dataKey}
+              fill="url(#colorBar)"
+              radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
