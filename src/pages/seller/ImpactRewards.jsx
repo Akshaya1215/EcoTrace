@@ -30,49 +30,49 @@ const ImpactRewards = () => {
       </div>
 
       {/* ================= IMPACT SECTION ================= */}
-      <h3 style={{ marginBottom: "16px" }}>Environmental Impact</h3>
+      <h3 style={{ marginBottom: "16px", color: "var(--color-beige)" }}>Environmental Impact</h3>
 
       <div className="dashboard-grid">
 
         <div className="card">
           <h4>Total CO₂ Saved</h4>
-          <h2 style={{ color: "#16a34a" }}>
+          <h2 style={{ color: "var(--color-terracotta)" }}>
             {impactData.totalCO2} kg
           </h2>
         </div>
 
         <div className="card">
           <h4>Total E-Waste Recycled</h4>
-          <h2>{impactData.totalEWaste} kg</h2>
+          <h2 style={{ color: "var(--color-green)" }}>{impactData.totalEWaste} kg</h2>
         </div>
 
         <div className="card">
           <h4>Trees Equivalent Saved</h4>
-          <h2>{impactData.treesEquivalent} 🌳</h2>
+          <h2 style={{ color: "var(--color-green)" }}>{impactData.treesEquivalent} 🌳</h2>
         </div>
 
         <div className="card">
           <h4>Energy Saved</h4>
-          <h2>{impactData.energySaved} kWh</h2>
+          <h2 style={{ color: "var(--color-green)" }}>{impactData.energySaved} kWh</h2>
         </div>
 
       </div>
 
       {/* ================= REWARDS SECTION ================= */}
-      <h3 style={{ margin: "40px 0 16px" }}>Rewards & Tier Status</h3>
+      <h3 style={{ margin: "40px 0 16px", color: "var(--color-beige)" }}>Rewards & Tier Status</h3>
 
       <div className="card">
 
         <div style={{ marginBottom: "20px" }}>
           <h4>Current Tier</h4>
-          <h2 style={{ color: "#2563eb" }}>
+          <h2 style={{ color: "var(--color-terracotta)" }}>
             {rewardsData.tier} Member
           </h2>
         </div>
 
         <div style={{ marginBottom: "20px" }}>
           <h4>Total Green Points</h4>
-          <h2>{rewardsData.totalPoints} pts</h2>
+          <h2 style={{ color: "var(--color-green)" }}>{rewardsData.totalPoints} pts</h2>
         </div>
 
         {/* Progress Bar */}
@@ -82,7 +82,7 @@ const ImpactRewards = () => {
           <div
             style={{
               height: "12px",
-              background: "#e5e7eb",
+              background: "rgba(74, 74, 74, 0.2)",
               borderRadius: "8px",
               overflow: "hidden",
               marginTop: "8px"
@@ -91,13 +91,13 @@ const ImpactRewards = () => {
             <div
               style={{
                 width: `${(rewardsData.totalPoints / 2000) * 100}%`,
-                background: "#22c55e",
+                background: "var(--gradient-progress)",
                 height: "100%"
               }}
             />
           </div>
 
-          <p style={{ marginTop: "8px", fontSize: "14px", color: "#64748b" }}>
+          <p style={{ marginTop: "8px", fontSize: "14px", color: "var(--color-grey)", fontWeight: "500" }}>
             {rewardsData.pointsToNext} points needed to reach {rewardsData.nextTier}
           </p>
         </div>

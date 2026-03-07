@@ -2,16 +2,16 @@ import React from 'react';
 import SummaryCard from '../components/SummaryCard';
 import CustomLineChart from '../components/LineChart';
 import DataTable from '../components/DataTable';
-import { 
-  CurrencyDollarIcon, 
-  DevicePhoneMobileIcon, 
-  SparklesIcon, 
+import {
+  CurrencyDollarIcon,
+  DevicePhoneMobileIcon,
+  SparklesIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 const SellerDashboard = () => {
 
-  
+
 
   const lineChartData = [
     { name: 'Jan', value: 400 },
@@ -68,8 +68,8 @@ const SellerDashboard = () => {
   const tableColumns = [
     { key: 'device', title: 'Device' },
     { key: 'date', title: 'Date' },
-    { 
-      key: 'status', 
+    {
+      key: 'status',
       title: 'Status',
       render: (status) => (
         <span className={`status-badge ${status.toLowerCase()}`}>
@@ -131,11 +131,11 @@ const SellerDashboard = () => {
       </div>
 
       {/* SUMMARY CARDS */}
-     
+
 
       {/* MOTIVATION STRIP */}
-      
-        
+
+
       {/* CHART */}
       <div className="charts-grid">
         <CustomLineChart
