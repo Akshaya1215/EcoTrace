@@ -1,7 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const CustomLineChart = ({ data, title, dataKey, strokeColor }) => {
+const CustomLineChart = ({ data, title, dataKey }) => {
   return (
     <div className="chart-container">
       <h3 className="chart-title">{title}</h3>

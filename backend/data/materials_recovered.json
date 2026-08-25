@@ -1,0 +1,64 @@
+[
+  {
+    "listingId": "6a7ae31eefc612814d14e7ce",
+    "sellerId": "seller_demo_001",
+    "recyclerId": "recycler_demo_001",
+    "materials": [
+      {
+        "material": "Copper",
+        "estimatedWeight": 15.0,
+        "recoveredWeight": 16.2,
+        "recoveryRate": 108.0,
+        "estimatedValue": 12.15
+      },
+      {
+        "material": "Aluminum",
+        "estimatedWeight": 30.0,
+        "recoveredWeight": 28.5,
+        "recoveryRate": 95.0,
+        "estimatedValue": 6.27
+      },
+      {
+        "material": "Gold",
+        "estimatedWeight": 0.05,
+        "recoveredWeight": 0.052,
+        "recoveryRate": 104.0,
+        "estimatedValue": 338.0
+      }
+    ],
+    "finalRecoveryValue": 356.42,
+    "createdAt": "2026-08-11T08:54:02.664600",
+    "_id": "6a7ae32aefc612814d14e7d0"
+  },
+  {
+    "listingId": "6a8d6143d2ad2770e772814d",
+    "sellerId": "seller_demo_001",
+    "recyclerId": "recycler_demo_001",
+    "materials": [
+      {
+        "material": "Copper",
+        "estimatedWeight": 15.0,
+        "recoveredWeight": 16.2,
+        "recoveryRate": 108.0,
+        "estimatedValue": 12.15
+      },
+      {
+        "material": "Aluminum",
+        "estimatedWeight": 30.0,
+        "recoveredWeight": 28.5,
+        "recoveryRate": 95.0,
+        "estimatedValue": 6.27
+      },
+      {
+        "material": "Gold",
+        "estimatedWeight": 0.05,
+        "recoveredWeight": 0.052,
+        "recoveryRate": 104.0,
+        "estimatedValue": 338.0
+      }
+    ],
+    "finalRecoveryValue": 356.42,
+    "createdAt": "2026-08-25T09:33:03.857154",
+    "_id": "6a8d614fd2ad2770e772814f"
+  }
+]

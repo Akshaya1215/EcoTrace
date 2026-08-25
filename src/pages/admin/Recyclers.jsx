@@ -1,98 +1,110 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/ui/DataTable';
 import SummaryCard from '../../components/ui/SummaryCard';
 import { TruckIcon, CheckCircleIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { getRecyclers, verifyRecycler } from '../../services/api';
 
 const Recyclers = () => {
-  // Summary data
+  const [recyclers, setRecyclers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchRecyclers = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getRecyclers();
+      setRecyclers(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load recyclers application queue");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecyclers();
+  }, []);
+
+  const handleVerify = async (recyclerId, newStatus) => {
+    if (!window.confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
+    try {
+      await verifyRecycler(recyclerId, newStatus);
+      alert(`Recycler status updated to ${newStatus}!`);
+      fetchRecyclers();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to update status");
+    }
+  };
+
+  // Calculations for summary metrics
+  const totalRecyclers = recyclers.length;
+  const approvedCount = recyclers.filter(r => r.status === 'VERIFIED').length;
+  const pendingCount = recyclers.filter(r => r.status === 'PENDING').length;
+  const totalRevenue = recyclers.reduce((sum, r) => sum + (r.revenue || 0), 0);
+
   const summaryData = [
     {
       title: 'Total Recyclers',
-      value: '127',
-      change: '+8% from last month',
+      value: totalRecyclers.toString(),
+      change: 'Registered accounts',
       changeType: 'positive',
       icon: TruckIcon,
       color: 'eco-green'
     },
     {
-      title: 'Approved',
-      value: '98',
-      change: '+5% from last month',
+      title: 'Approved / Verified',
+      value: approvedCount.toString(),
+      change: 'Active processing centers',
       changeType: 'positive',
       icon: CheckCircleIcon,
       color: 'eco-blue'
     },
     {
       title: 'Pending Approval',
-      value: '18',
-      change: '+3 from last week',
+      value: pendingCount.toString(),
+      change: 'Applications in review',
       changeType: 'neutral',
       icon: ClockIcon,
       color: 'eco-orange'
     },
     {
-      title: 'Total Revenue',
-      value: '$124,847',
-      change: '+18% from last month',
+      title: 'Processed Value (INR)',
+      value: `₹ ${totalRevenue.toLocaleString()}`,
+      change: 'Refined commodity value',
       changeType: 'positive',
       icon: CurrencyDollarIcon,
       color: 'eco-purple'
     }
   ];
 
-  // Table data
-  const tableData = [
-    {
-      id: '1',
-      name: 'Green Recycle Solutions',
-      email: 'contact@greenrecycle.com',
-      location: 'New York, NY',
-      status: 'approved',
-      devices: '234',
-      revenue: '$12,450',
-      joined: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'EcoTech Processing',
-      email: 'info@ecotech.com',
-      location: 'Los Angeles, CA',
-      status: 'pending',
-      devices: '45',
-      revenue: '$2,800',
-      joined: '2024-01-10'
-    },
-    {
-      id: '3',
-      name: 'Sustainable Materials Co',
-      email: 'hello@susmat.com',
-      location: 'Chicago, IL',
-      status: 'approved',
-      devices: '189',
-      revenue: '$9,230',
-      joined: '2024-01-08'
-    },
-    {
-      id: '4',
-      name: 'City Recycling Center',
-      email: 'admin@cityrecycle.gov',
-      location: 'Houston, TX',
-      status: 'approved',
-      devices: '567',
-      revenue: '$28,900',
-      joined: '2024-01-05'
-    },
-    {
-      id: '5',
-      name: 'Digital Waste Solutions',
-      email: 'support@digitalwaste.com',
-      location: 'Phoenix, AZ',
-      status: 'suspended',
-      devices: '12',
-      revenue: '$450',
-      joined: '2024-01-03'
+  // Map to table data
+  const tableData = recyclers.map(item => ({
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    location: item.location || 'N/A',
+    status: item.status,
+    devices: item.devices || 0,
+    revenue: `₹ ${(item.revenue || 0).toLocaleString()}`,
+    joined: item.joined ? new Date(item.joined).toLocaleDateString() : 'N/A',
+    originalItem: item
+  }));
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "VERIFIED":
+        return "completed";
+      case "PENDING":
+        return "pending";
+      case "REJECTED":
+        return "cancelled";
+      default:
+        return "pending";
     }
-  ];
+  };
 
   const tableColumns = [
     { key: 'name', title: 'Company Name' },
@@ -102,14 +114,46 @@ const Recyclers = () => {
       key: 'status', 
       title: 'Status',
       render: (status) => (
-        <span className={`status-badge ${status.toLowerCase()}`}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+        <span className={`status-badge ${getStatusClass(status)}`}>
+          {status}
         </span>
       )
     },
     { key: 'devices', title: 'Devices Processed' },
-    { key: 'revenue', title: 'Revenue' },
-    { key: 'joined', title: 'Joined Date' }
+    { key: 'revenue', title: 'Turnaround Value' },
+    { key: 'joined', title: 'Joined Date' },
+    {
+      key: 'actions',
+      title: 'Actions',
+      render: (_, row) => (
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {row.status === 'PENDING' && (
+            <>
+              <button
+                onClick={() => handleVerify(row.id, 'VERIFIED')}
+                className="btn btn-primary"
+                style={{ padding: '4px 10px', fontSize: '11px', backgroundColor: '#16a34a' }}
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleVerify(row.id, 'REJECTED')}
+                className="btn btn-secondary"
+                style={{ padding: '4px 10px', fontSize: '11px', color: '#b91c1c', borderColor: '#fee2e2' }}
+              >
+                Reject
+              </button>
+            </>
+          )}
+          {row.status === 'VERIFIED' && (
+            <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: '500' }}>Active Facility</span>
+          )}
+          {row.status === 'REJECTED' && (
+            <span style={{ fontSize: '12px', color: '#b91c1c', fontWeight: '500' }}>Rejected</span>
+          )}
+        </div>
+      )
+    }
   ];
 
   return (
@@ -117,6 +161,12 @@ const Recyclers = () => {
       <h1 className="page-title">Recycler Approvals</h1>
       <p className="page-subtitle">Manage recycler applications and approvals</p>
       
+      {error && (
+        <div className="card" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fee2e2', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+          ❌ {error}
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="dashboard-grid">
         {summaryData.map((item, index) => (
@@ -124,12 +174,22 @@ const Recyclers = () => {
         ))}
       </div>
 
-      {/* Recyclers Table */}
-      <DataTable
-        title="Recycler Applications"
-        data={tableData}
-        columns={tableColumns}
-      />
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>Loading recycler database...</p>
+        </div>
+      ) : tableData.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "50px 20px" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>No recycler applications found.</p>
+        </div>
+      ) : (
+        /* Recyclers Table */
+        <DataTable
+          title="Recycler Applications"
+          data={tableData}
+          columns={tableColumns}
+        />
+      )}
     </div>
   );
 };

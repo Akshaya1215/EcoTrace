@@ -7,7 +7,9 @@ import {
   UserGroupIcon, 
   BuildingOfficeIcon, 
   CurrencyDollarIcon, 
-  ChartBarIcon 
+  ChartBarIcon,
+  UsersIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 const AdminDashboard = () => {

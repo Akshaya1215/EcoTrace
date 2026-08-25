@@ -13,7 +13,9 @@ import {
   BellIcon,
   UserCircleIcon,
   CheckCircleIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  UserGroupIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import Logo3D from '../Logo3D';
 

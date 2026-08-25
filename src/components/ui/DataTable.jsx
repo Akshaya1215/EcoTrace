@@ -18,7 +18,7 @@ const DataTable = ({ title, data, columns }) => {
               <tr key={rowIndex}>
                 {columns.map((column, colIndex) => (
                   <td key={colIndex}>
-                    {column.render ? column.render(row[column.key]) : row[column.key]}
+                    {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </td>
                 ))}
               </tr>

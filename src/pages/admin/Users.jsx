@@ -1,98 +1,91 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/ui/DataTable';
 import SummaryCard from '../../components/ui/SummaryCard';
 import { UserGroupIcon, UserPlusIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { getUsers } from '../../services/api';
 
 const Users = () => {
-  // Summary data
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getUsers();
+      setUsers(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load user database");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Summary card counts
+  const totalCount = users.length;
+  const sellerCount = users.filter(u => u.role === 'seller').length;
+  const corporateCount = users.filter(u => u.role === 'corporate').length;
+  const recyclerCount = users.filter(u => u.role === 'recycler').length;
+
   const summaryData = [
     {
       title: 'Total Users',
-      value: '8,547',
-      change: '+23% from last month',
+      value: totalCount.toString(),
+      change: 'Registered accounts',
       changeType: 'positive',
       icon: UserGroupIcon,
       color: 'eco-green'
     },
     {
-      title: 'New This Month',
-      value: '342',
-      change: '+12% from last month',
+      title: 'Sellers Registered',
+      value: sellerCount.toString(),
+      change: 'Individual sellers',
       changeType: 'positive',
-      icon: UserPlusIcon,
+      icon: UserIcon,
       color: 'eco-blue'
     },
     {
-      title: 'Active Users',
-      value: '6,234',
-      change: '+8% from last month',
-      changeType: 'positive',
-      icon: UserIcon,
-      color: 'eco-emerald'
-    },
-    {
-      title: 'Verified Users',
-      value: '5,847',
-      change: '+15% from last month',
+      title: 'Corporate Accounts',
+      value: corporateCount.toString(),
+      change: 'Enterprise profiles',
       changeType: 'positive',
       icon: ShieldCheckIcon,
       color: 'eco-purple'
+    },
+    {
+      title: 'Recycler Nodes',
+      value: recyclerCount.toString(),
+      change: 'Refinement facilities',
+      changeType: 'positive',
+      icon: UserPlusIcon,
+      color: 'eco-emerald'
     }
   ];
 
-  // Table data
-  const tableData = [
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john.smith@example.com',
-      type: 'Individual',
-      status: 'active',
-      joined: '2024-01-15',
-      devices: '12',
-      revenue: '$450'
-    },
-    {
-      id: '2',
-      name: 'Sarah Johnson',
-      email: 'sarah.j@techcorp.com',
-      type: 'Corporate',
-      status: 'active',
-      joined: '2024-01-10',
-      devices: '45',
-      revenue: '$2,800'
-    },
-    {
-      id: '3',
-      name: 'Mike Davis',
-      email: 'mike@greenrecycle.com',
-      type: 'Recycler',
-      status: 'pending',
-      joined: '2024-01-08',
-      devices: '78',
-      revenue: '$5,200'
-    },
-    {
-      id: '4',
-      name: 'Emily Wilson',
-      email: 'emily.w@example.com',
-      type: 'Individual',
-      status: 'active',
-      joined: '2024-01-05',
-      devices: '8',
-      revenue: '$320'
-    },
-    {
-      id: '5',
-      name: 'Robert Brown',
-      email: 'robert.b@ecofirm.com',
-      type: 'Corporate',
-      status: 'suspended',
-      joined: '2024-01-03',
-      devices: '23',
-      revenue: '$1,450'
-    }
-  ];
+  // Map to table data
+  const tableData = users.map(item => ({
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    type: item.role.charAt(0).toUpperCase() + item.role.slice(1),
+    status: item.status || 'Active',
+    joined: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A',
+    devices: item.role === 'recycler' ? 'Refining center' : (item.role === 'corporate' ? 'ESG Account' : 'Seller Profile'),
+    revenue: 'Platform Account'
+  }));
+
+  const getStatusClass = (status) => {
+    const s = status.toLowerCase();
+    if (s === 'active' || s === 'verified') return 'completed';
+    if (s === 'pending') return 'pending';
+    return 'cancelled';
+  };
 
   const tableColumns = [
     { key: 'name', title: 'Name' },
@@ -102,14 +95,14 @@ const Users = () => {
       key: 'status', 
       title: 'Status',
       render: (status) => (
-        <span className={`status-badge ${status.toLowerCase()}`}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+        <span className={`status-badge ${getStatusClass(status)}`}>
+          {status}
         </span>
       )
     },
     { key: 'joined', title: 'Joined Date' },
-    { key: 'devices', title: 'Devices' },
-    { key: 'revenue', title: 'Revenue' }
+    { key: 'devices', title: 'Scope' },
+    { key: 'revenue', title: 'Account Type' }
   ];
 
   return (
@@ -117,6 +110,12 @@ const Users = () => {
       <h1 className="page-title">Manage Users</h1>
       <p className="page-subtitle">View and manage all platform users</p>
       
+      {error && (
+        <div className="card" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fee2e2', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+          ❌ {error}
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="dashboard-grid">
         {summaryData.map((item, index) => (
@@ -124,12 +123,22 @@ const Users = () => {
         ))}
       </div>
 
-      {/* Users Table */}
-      <DataTable
-        title="All Users"
-        data={tableData}
-        columns={tableColumns}
-      />
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>Loading user base...</p>
+        </div>
+      ) : tableData.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "50px 20px" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>No users registered in the database.</p>
+        </div>
+      ) : (
+        /* Users Table */
+        <DataTable
+          title="All Platform Users"
+          data={tableData}
+          columns={tableColumns}
+        />
+      )}
     </div>
   );
 };

@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "6a7ae326efc612814d14e7cf",
+    "listingId": "6a7ae31eefc612814d14e7ce",
+    "sellerId": "seller_demo_001",
+    "recyclerId": "recycler_demo_001",
+    "pickupAddress": "Bangalore Office",
+    "pickupDate": "2026-08-15",
+    "pickupTime": "11:00 AM",
+    "status": "SCHEDULED",
+    "createdAt": "2026-08-11T08:53:58.603396"
+  },
+  {
+    "_id": "6a8d614bd2ad2770e772814e",
+    "listingId": "6a8d6143d2ad2770e772814d",
+    "sellerId": "seller_demo_001",
+    "recyclerId": "recycler_demo_001",
+    "pickupAddress": "Bangalore Office",
+    "pickupDate": "2026-08-15",
+    "pickupTime": "11:00 AM",
+    "status": "SCHEDULED",
+    "createdAt": "2026-08-25T09:32:59.737853"
+  }
+]

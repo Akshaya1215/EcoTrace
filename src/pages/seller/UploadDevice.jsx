@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
+import { analyzeDevice, createListing } from '../../services/api';
+import { getCurrentUser } from '../../services/auth';
 
 const UploadDevice = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -8,6 +10,8 @@ const UploadDevice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [readyToSell, setReadyToSell] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [apiError, setApiError] = useState(null);
 
   const [formData, setFormData] = useState({
     modelName: '',
@@ -50,6 +54,8 @@ const UploadDevice = () => {
     setSelectedFile(file);
     setShowResult(false);
     setReadyToSell(false);
+    setAiResult(null);
+    setApiError(null);
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -76,45 +82,98 @@ const UploadDevice = () => {
      SUBMIT
   ========================= */
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFile || !formData.modelName) return;
 
     setIsLoading(true);
+    setApiError(null);
+    setAiResult(null);
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const data = new FormData();
+      data.append('image', selectedFile);
+      data.append('modelName', formData.modelName);
+      data.append('place', formData.place);
+      data.append('contactDetails', formData.contactDetails);
+      data.append('ewasteDescription', formData.ewasteDescription);
+      data.append('condition', 'good'); // default condition
+
+      const result = await analyzeDevice(data);
+      setAiResult(result);
       setShowResult(true);
-      window.scrollTo({ top: 900, behavior: 'smooth' });
-    }, 2000);
+      setTimeout(() => {
+        const resultSection = document.getElementById('ai-result-section');
+        if (resultSection) {
+          resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      setApiError(err.message || 'Failed to analyze device. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /* =========================
      SELL LOGIC
   ========================= */
 
-  const handleSell = () => {
-    setReadyToSell(true);
+  const handleSell = async () => {
+    if (!aiResult) return;
+    setIsLoading(true);
+    setApiError(null);
+    
+    try {
+      const user = getCurrentUser();
+      const listingData = {
+        sellerId: user.id,
+        sellerName: user.name,
+        deviceName: aiResult.device.model,
+        brand: aiResult.device.brand,
+        category: aiResult.device.category,
+        image: imagePreview, // Save base64 image preview for listing image
+        condition: aiResult.condition,
+        location: formData.place || 'Unknown',
+        contactDetails: formData.contactDetails || 'None',
+        aiAnalysis: aiResult,
+        estimatedWeight: aiResult.estimatedWeightGrams,
+        materials: aiResult.materials,
+        estimatedRecoveryValue: aiResult.valuation,
+        environmentalImpact: aiResult.environmentalImpact,
+        status: 'AVAILABLE'
+      };
+      
+      await createListing(listingData);
+      setReadyToSell(true);
 
-    setTimeout(() => {
-      setSelectedFile(null);
-      setImagePreview(null);
-      setShowResult(false);
-      setReadyToSell(false);
+      setTimeout(() => {
+        setSelectedFile(null);
+        setImagePreview(null);
+        setShowResult(false);
+        setReadyToSell(false);
+        setAiResult(null);
 
-      setFormData({
-        modelName: '',
-        brand: '',
-        category: '',
-        condition: '',
-        description: '',
-        place: '',
-        contactDetails: '',
-        ewasteDescription: ''
-      });
+        setFormData({
+          modelName: '',
+          brand: '',
+          category: '',
+          condition: '',
+          description: '',
+          place: '',
+          contactDetails: '',
+          ewasteDescription: ''
+        });
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 2000);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setApiError(err.message || 'Failed to list device. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isFormValid = selectedFile && formData.modelName;
@@ -123,6 +182,12 @@ const UploadDevice = () => {
     <div className="dashboard-page">
       <h1 className="page-title">Upload Device</h1>
       <p className="page-subtitle">Upload your device for AI analysis</p>
+
+      {apiError && (
+        <div className="card" style={{ maxWidth: '900px', margin: '0 auto 20px', background: '#fef2f2', color: '#b91c1c', border: '1px solid #fee2e2', padding: '15px', borderRadius: '8px' }}>
+          ❌ {apiError}
+        </div>
+      )}
 
       <div className="card" style={{ maxWidth: '900px', margin: '0 auto' }}>
         <form onSubmit={handleSubmit}>
@@ -249,156 +314,155 @@ const UploadDevice = () => {
 
         </form>
       </div>
-{/* ================= AI RESULT SECTION ================= */}
-{showResult && (
-  <div className="card" style={{ maxWidth: '1000px', margin: '50px auto' }}>
 
-    {/* HEADER */}
-    <div style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '20px', marginBottom: '25px' }}>
-      <h2 style={{ fontSize: '22px', fontWeight: 600 }}>
-        🧠 AI Material Recovery Analysis
-      </h2>
-      <p style={{ fontSize: '13px', color: '#6b7280' }}>
-        Model: EcoTraceNet v2.4 | Inference Time: 1.87s | Dataset: 18,400+ device samples
-      </p>
-    </div>
+      {/* ================= AI RESULT SECTION ================= */}
+      {showResult && aiResult && (
+        <div id="ai-result-section" className="card" style={{ maxWidth: '1000px', margin: '50px auto' }}>
 
-    {/* CLASSIFICATION BLOCK */}
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+          {/* HEADER */}
+          <div style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '20px', marginBottom: '25px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 600 }}>
+              🧠 AI-assisted estimate (Reference-based)
+            </h2>
+            <p style={{ fontSize: '13px', color: '#6b7280' }}>
+              Model: EcoTraceNet v2.4 (Demo AI analysis) | Inference Time: {aiResult.inferenceTimeSeconds}s | AI Provider: {aiResult.aiProvider}
+            </p>
+          </div>
 
-      <div>
-        <p><strong>Device Classification:</strong> Samsung Galaxy (Mid-range)</p>
-        <p><strong>Predicted Weight:</strong> 178g – 185g range</p>
-        <p><strong>Condition Score:</strong> 0.82 (High Scrap Viability)</p>
+          {/* CLASSIFICATION BLOCK */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
 
-        {/* Confidence Meter */}
-        <div style={{ marginTop: '15px' }}>
-          <p style={{ fontSize: '13px' }}>Model Confidence: 94.7%</p>
-          <div style={{ height: '10px', background: '#e5e7eb', borderRadius: '6px' }}>
+            <div>
+              <p><strong>Device Classification:</strong> {aiResult.device.className}</p>
+              <p><strong>Predicted Weight:</strong> {aiResult.estimatedWeightGrams}g</p>
+              <p><strong>Condition Score:</strong> {aiResult.conditionConfidence} (Scrap Viability)</p>
+
+              {/* Confidence Meter */}
+              <div style={{ marginTop: '15px' }}>
+                <p style={{ fontSize: '13px' }}>Model Confidence: {(aiResult.classificationConfidence * 100).toFixed(1)}%</p>
+                <div style={{ height: '10px', background: '#e5e7eb', borderRadius: '6px' }}>
+                  <div style={{
+                    width: `${(aiResult.classificationConfidence * 100)}%`,
+                    height: '10px',
+                    background: '#16a34a',
+                    borderRadius: '6px',
+                    transition: 'width 1s ease'
+                  }} />
+                </div>
+              </div>
+            </div>
+
+            {/* RISK SCORE */}
             <div style={{
-              width: '94.7%',
-              height: '10px',
-              background: '#16a34a',
-              borderRadius: '6px',
-              transition: 'width 1s ease'
-            }} />
+              background: '#f9fafb',
+              padding: '20px',
+              borderRadius: '10px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h4>⚠ Risk Assessment</h4>
+              <p style={{ fontSize: '14px' }}>
+                Battery Degradation Probability: {aiResult.riskAssessment.batteryDegradation}%
+              </p>
+              <p style={{ fontSize: '14px' }}>
+                Metal Recovery Efficiency: {aiResult.riskAssessment.metalRecovery}%
+              </p>
+              <p style={{ fontSize: '14px' }}>
+                Resale Probability: {aiResult.riskAssessment.resale}%
+              </p>
+            </div>
+
           </div>
-        </div>
-      </div>
 
-      {/* RISK SCORE */}
-      <div style={{
-        background: '#f9fafb',
-        padding: '20px',
-        borderRadius: '10px',
-        border: '1px solid #e5e7eb'
-      }}>
-        <h4>⚠ Risk Assessment</h4>
-        <p style={{ fontSize: '14px' }}>
-          Battery Degradation Probability: 78%
-        </p>
-        <p style={{ fontSize: '14px' }}>
-          Metal Recovery Efficiency: 88%
-        </p>
-        <p style={{ fontSize: '14px' }}>
-          Resale Probability: 12%
-        </p>
-      </div>
+          {/* MATERIAL BREAKDOWN */}
+          <div style={{ marginTop: '35px' }}>
+            <h3>📊 Material Distribution (Estimated)</h3>
 
-    </div>
-
-    {/* MATERIAL BREAKDOWN */}
-    <div style={{ marginTop: '35px' }}>
-      <h3>📊 Material Distribution (Estimated)</h3>
-
-      {[
-        { name: "Aluminum", percent: 25 },
-        { name: "Lithium Battery", percent: 20 },
-        { name: "Glass", percent: 18 },
-        { name: "Plastics", percent: 15 },
-        { name: "Copper", percent: 10 },
-        { name: "Iron/Steel", percent: 5 }
-      ].map((item, i) => (
-        <div key={i} style={{ marginBottom: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-            <span>{item.name}</span>
-            <span>{item.percent}%</span>
+            {aiResult.materials.map((item, i) => (
+              <div key={i} style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                  <span>{item.material}</span>
+                  <span>{item.percentage.toFixed(1)}% ({item.estimatedGrams}g)</span>
+                </div>
+                <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '6px' }}>
+                  <div style={{
+                    width: `${item.percentage}%`,
+                    height: '8px',
+                    background: '#22c55e',
+                    borderRadius: '6px'
+                  }} />
+                </div>
+              </div>
+            ))}
           </div>
-          <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '6px' }}>
-            <div style={{
-              width: `${item.percent}%`,
-              height: '8px',
-              background: '#22c55e',
-              borderRadius: '6px'
-            }} />
+
+          {/* PRECIOUS METALS */}
+          <div style={{ marginTop: '35px' }}>
+            <h3>💎 Precious Metals Content (Estimated)</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginTop: '10px' }}>
+              {aiResult.preciousMetals.map((pm, i) => {
+                const pmRate = aiResult.valuation.ratesApplied[pm.name] || 0;
+                const pmVal = Math.round(pm.grams * pmRate);
+                return (
+                  <div key={i} className="card" style={{ padding: '15px', textAlign: 'center', background: '#fff' }}>
+                    <h4 style={{ textTransform: 'capitalize', margin: '0 0 5px 0' }}>{pm.name}</h4>
+                    <p style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 5px 0' }}>{pm.grams}g</p>
+                    <small style={{ color: '#16a34a', fontWeight: 500 }}>₹ {pmVal}</small>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
 
-    {/* PRECIOUS METALS */}
-    <div style={{ marginTop: '35px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-      <div className="card">
-        <h4>Gold</h4>
-        <p>0.03g</p>
-        <small>₹ 165</small>
-      </div>
-      <div className="card">
-        <h4>Silver</h4>
-        <p>0.25g</p>
-        <small>₹ 17</small>
-      </div>
-      <div className="card">
-        <h4>Palladium</h4>
-        <p>0.015g</p>
-        <small>₹ 22</small>
-      </div>
-    </div>
+          {/* VALUE BLOCK */}
+          <div style={{
+            marginTop: '40px',
+            padding: '25px',
+            background: 'linear-gradient(135deg, #ecfdf5, #f0fdf4)',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <h3>💰 Estimated Recovery Value</h3>
+            <h1 style={{ fontSize: '36px', color: '#15803d' }}>
+              ₹ {aiResult.valuation.minValue} – ₹ {aiResult.valuation.maxValue}
+            </h1>
+            <p style={{ fontSize: '12px', color: '#6b7280' }}>
+              Based on Indian scrap market rates (2024 industry average)
+            </p>
+          </div>
 
-    {/* VALUE BLOCK */}
-    <div style={{
-      marginTop: '40px',
-      padding: '25px',
-      background: 'linear-gradient(135deg, #ecfdf5, #f0fdf4)',
-      borderRadius: '12px',
-      textAlign: 'center'
-    }}>
-      <h3>💰 Estimated Total Recovery Value</h3>
-      <h1 style={{ fontSize: '36px', color: '#15803d' }}>₹ 238 – ₹ 260</h1>
-      <p style={{ fontSize: '12px', color: '#6b7280' }}>
-        Based on Indian scrap market rates (2024 industry average)
-      </p>
-    </div>
+          {/* ENVIRONMENT IMPACT */}
+          <div style={{ marginTop: '30px' }}>
+            <h3>🌍 Estimated Environmental Impact</h3>
+            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginTop: '10px' }}>
+              <p style={{ margin: '5px 0' }}><strong>CO₂ Emissions Avoided:</strong> {aiResult.environmentalImpact.co2AvoidedKg} kg</p>
+              <p style={{ margin: '5px 0' }}><strong>Energy Saved:</strong> {aiResult.environmentalImpact.energySavedKwh} kWh</p>
+              <p style={{ margin: '5px 0' }}><strong>Water Saved:</strong> {aiResult.environmentalImpact.waterSavedLiters} Liters</p>
+              <p style={{ margin: '5px 0' }}><strong>Forest Regeneration Equiv:</strong> {aiResult.environmentalImpact.treesEquivalent} trees/year</p>
+            </div>
+          </div>
 
-    {/* ENVIRONMENT IMPACT */}
-    <div style={{ marginTop: '30px' }}>
-      <h3>🌍 Environmental Impact Projection</h3>
-      <p>CO₂ Emissions Avoided: 12.6 kg</p>
-      <p>Energy Saved: 19.3 kWh</p>
-      <p>Water Saved: 48 Liters</p>
-    </div>
+          {/* SELL BUTTON */}
+          <div style={{ textAlign: 'center', marginTop: '35px' }}>
+            {!readyToSell ? (
+              <button onClick={handleSell} className="btn btn-primary" disabled={isLoading} style={{ padding: '12px 30px' }}>
+                {isLoading ? 'Creating Listing...' : 'List for Marketplace'}
+              </button>
+            ) : (
+              <div style={{
+                background: '#dcfce7',
+                padding: '12px',
+                borderRadius: '8px',
+                color: '#15803d',
+                fontWeight: 500,
+                display: 'inline-block'
+              }}>
+                ✅ Listing Created Successfully! Redirecting...
+              </div>
+            )}
+          </div>
 
-    {/* SELL BUTTON */}
-    <div style={{ textAlign: 'center', marginTop: '35px' }}>
-      {!readyToSell ? (
-        <button onClick={handleSell} className="btn btn-primary">
-          List for Marketplace
-        </button>
-      ) : (
-        <div style={{
-          background: '#dcfce7',
-          padding: '12px',
-          borderRadius: '8px',
-          color: '#15803d',
-          fontWeight: 500
-        }}>
-          ✅ Listing Created Successfully
         </div>
       )}
-    </div>
-
-  </div>
-)}
     </div>
   );
 };

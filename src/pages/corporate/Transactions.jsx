@@ -1,39 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/ui/DataTable';
 import SummaryCard from '../../components/ui/SummaryCard';
 import { CurrencyDollarIcon, ArrowTrendingUpIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { getTransactions } from '../../services/api';
+import { getCurrentUser } from '../../services/auth';
 
 const CorporateTransactions = () => {
-  // Summary data
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const currentUser = getCurrentUser();
+
+  const fetchTransactions = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // For transactions corporate acts as a seller
+      const data = await getTransactions('seller', currentUser.id);
+      setTransactions(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load transaction history");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const getRecyclerName = (recyclerId) => {
+    const recyclers = {
+      recycler_demo_001: "GreenCycle Pvt Ltd",
+      recycler_demo_002: "EcoMetal Recyclers",
+      recycler_demo_003: "Urban Scrap Solutions"
+    };
+    return recyclers[recyclerId] || recyclerId || "Demo Recycler";
+  };
+
+  // Calculations
+  const completedTxns = transactions.filter(t => t.status === 'COMPLETED');
+  const totalRevenue = completedTxns.reduce((sum, t) => sum + t.amount, 0);
+  const avgTxn = transactions.length > 0 ? totalRevenue / transactions.length : 0;
+  const pendingPayments = transactions.filter(t => t.status === 'PENDING' || t.status === 'PROCESSING').reduce((sum, t) => sum + t.amount, 0);
+  const completedCount = completedTxns.length;
+
   const summaryData = [
     {
       title: 'Total Revenue',
-      value: '$12,847',
-      change: '+23% from last month',
+      value: `₹ ${totalRevenue.toLocaleString()}`,
+      change: 'Settled amount',
       changeType: 'positive',
       icon: CurrencyDollarIcon,
       color: 'eco-green'
     },
     {
       title: 'Avg. Transaction',
-      value: '$54.89',
-      change: '+12% from last month',
+      value: `₹ ${Math.round(avgTxn).toLocaleString()}`,
+      change: 'Per-lot average',
       changeType: 'positive',
       icon: ArrowTrendingUpIcon,
       color: 'eco-blue'
     },
     {
       title: 'Pending Payments',
-      value: '$2,340',
-      change: '+5% from last week',
+      value: `₹ ${pendingPayments.toLocaleString()}`,
+      change: 'Settlement queue',
       changeType: 'neutral',
       icon: ClockIcon,
       color: 'eco-orange'
     },
     {
-      title: 'Completed',
-      value: '234',
-      change: '+18% from last month',
+      title: 'Completed Lots',
+      value: completedCount.toString(),
+      change: 'Fully processed',
       changeType: 'positive',
       icon: CheckCircleIcon,
       color: 'eco-emerald'
@@ -41,65 +83,41 @@ const CorporateTransactions = () => {
   ];
 
   // Table data
-  const tableData = [
-    {
-      id: '1',
-      device: 'MacBook Pro 2020',
-      recycler: 'Green Recycle Solutions',
-      quantity: '15',
-      amount: '$12,000',
-      status: 'completed',
-      date: '2024-01-15'
-    },
-    {
-      id: '2',
-      device: 'iPhone 13',
-      recycler: 'EcoTech Processing',
-      quantity: '25',
-      amount: '$11,250',
-      status: 'pending',
-      date: '2024-01-14'
-    },
-    {
-      id: '3',
-      device: 'Dell Monitor',
-      recycler: 'Sustainable Materials Co',
-      quantity: '10',
-      amount: '$1,200',
-      status: 'completed',
-      date: '2024-01-13'
-    },
-    {
-      id: '4',
-      device: 'iPad Air',
-      recycler: 'City Recycling Center',
-      quantity: '8',
-      amount: '$2,240',
-      status: 'processing',
-      date: '2024-01-12'
-    },
-    {
-      id: '5',
-      device: 'HP Laptop',
-      recycler: 'Digital Waste Solutions',
-      quantity: '12',
-      amount: '$3,840',
-      status: 'completed',
-      date: '2024-01-11'
+  const tableData = transactions.map(item => ({
+    id: item.id,
+    device: item.deviceName,
+    recycler: getRecyclerName(item.recyclerId),
+    amount: `₹ ${item.amount.toLocaleString()}`,
+    status: item.status,
+    date: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'
+  }));
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return "completed";
+      case "PROCESSING":
+      case "PENDING":
+        return "processing";
+      case "FAILED":
+      case "CANCELLED":
+        return "cancelled";
+      default:
+        return "pending";
     }
-  ];
+  };
 
   const tableColumns = [
+    { key: 'id', title: 'Txn ID' },
     { key: 'device', title: 'Device Model' },
     { key: 'recycler', title: 'Recycler' },
-    { key: 'quantity', title: 'Quantity' },
     { key: 'amount', title: 'Amount' },
     { 
       key: 'status', 
       title: 'Status',
       render: (status) => (
-        <span className={`status-badge ${status.toLowerCase()}`}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+        <span className={`status-badge ${getStatusClass(status)}`}>
+          {status}
         </span>
       )
     },
@@ -111,6 +129,12 @@ const CorporateTransactions = () => {
       <h1 className="page-title">Transactions</h1>
       <p className="page-subtitle">View your organization's transaction history</p>
       
+      {error && (
+        <div className="card" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fee2e2', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+          ❌ {error}
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="dashboard-grid">
         {summaryData.map((item, index) => (
@@ -118,12 +142,22 @@ const CorporateTransactions = () => {
         ))}
       </div>
 
-      {/* Transactions Table */}
-      <DataTable
-        title="Transaction History"
-        data={tableData}
-        columns={tableColumns}
-      />
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>Loading transaction history...</p>
+        </div>
+      ) : tableData.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "50px 20px" }}>
+          <p style={{ fontSize: "16px", color: "#6b7280" }}>No transaction history found.</p>
+        </div>
+      ) : (
+        /* Transactions Table */
+        <DataTable
+          title="Transaction History"
+          data={tableData}
+          columns={tableColumns}
+        />
+      )}
     </div>
   );
 };

@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "seller_demo_001",
+    "name": "Demo Seller",
+    "email": "seller@ecotrace.com",
+    "role": "seller",
+    "createdAt": "2024-01-01T00:00:00"
+  },
+  {
+    "_id": "corporate_demo_001",
+    "name": "EcoCorp Solutions",
+    "email": "sustainability@ecocorp.com",
+    "role": "corporate",
+    "createdAt": "2024-01-01T00:00:00"
+  },
+  {
+    "_id": "recycler_demo_001",
+    "name": "GreenCycle Pvt Ltd",
+    "email": "contact@greencycle.com",
+    "role": "recycler",
+    "status": "VERIFIED",
+    "createdAt": "2024-01-01T00:00:00"
+  }
+]
