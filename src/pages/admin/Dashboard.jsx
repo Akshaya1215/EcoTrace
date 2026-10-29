@@ -8,8 +8,7 @@ import {
   BuildingOfficeIcon, 
   TruckIcon, 
   CurrencyDollarIcon,
-  DocumentTextIcon,
-  SparklesIcon
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { getAdminAnalytics, getListings } from '../../services/api';
 
@@ -80,14 +79,6 @@ const AdminDashboard = () => {
       changeType: 'positive',
       icon: DocumentTextIcon,
       color: 'eco-orange'
-    },
-    {
-      title: 'Platform CO₂ Savings',
-      value: `${stats.totalCO2Saved?.toFixed(1) || '0'} kg`,
-      change: `${stats.totalEWasteProcessed?.toFixed(1) || '0'} kg e-waste`,
-      changeType: 'positive',
-      icon: SparklesIcon,
-      color: 'eco-teal'
     }
   ] : [];
 

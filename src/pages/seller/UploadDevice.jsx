@@ -430,16 +430,7 @@ const UploadDevice = () => {
             </p>
           </div>
 
-          {/* ENVIRONMENT IMPACT */}
-          <div style={{ marginTop: '30px' }}>
-            <h3>🌍 Estimated Environmental Impact</h3>
-            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginTop: '10px' }}>
-              <p style={{ margin: '5px 0' }}><strong>CO₂ Emissions Avoided:</strong> {aiResult.environmentalImpact.co2AvoidedKg} kg</p>
-              <p style={{ margin: '5px 0' }}><strong>Energy Saved:</strong> {aiResult.environmentalImpact.energySavedKwh} kWh</p>
-              <p style={{ margin: '5px 0' }}><strong>Water Saved:</strong> {aiResult.environmentalImpact.waterSavedLiters} Liters</p>
-              <p style={{ margin: '5px 0' }}><strong>Forest Regeneration Equiv:</strong> {aiResult.environmentalImpact.treesEquivalent} trees/year</p>
-            </div>
-          </div>
+          {/* ENVIRONMENT IMPACT - REMOVED */}
 
           {/* SELL BUTTON */}
           <div style={{ textAlign: 'center', marginTop: '35px' }}>

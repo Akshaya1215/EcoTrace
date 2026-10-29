@@ -26,8 +26,8 @@ import BulkUpload from './pages/corporate/BulkUpload';
 import PickupSchedule from './pages/corporate/PickupSchedule';
 import CorporateListings from './pages/corporate/Listings';
 import CorporateTransactions from './pages/corporate/Transactions';
-import ImpactReports from './pages/corporate/ImpactReports';
 import CorporateProfile from './pages/corporate/Profile';
+import ImpactReports from './pages/corporate/ImpactReports';
 
 // Recycler imports
 import RecyclerLayout from './layouts/RecyclerLayout';

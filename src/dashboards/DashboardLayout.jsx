@@ -20,7 +20,6 @@ import MyListings from '../pages/seller/MyListings';
 import ProfileSettings from '../pages/seller/ProfileSettings';
 import Transactions from '../pages/seller/Transactions';
 import RecyclerDashboard from './RecyclerDashboard';
-import ImpactRewards from '../pages/seller/ImpactRewards';
 import CorporateDashboard from './CorporateDashboard';
 import AdminDashboard from './AdminDashboard';
 
@@ -35,9 +34,7 @@ const DashboardLayout = () => {
     { name: 'Upload Device', href: '/dashboard/upload', icon: CloudArrowUpIcon },
     { name: 'My Listings', href: '/dashboard/listings', icon: DocumentTextIcon },
     { name: 'Transactions', href: '/dashboard/transactions', icon: BanknotesIcon },
-    { name: 'Impact Rewards', href: '/dashboard/ImpactRewards', icon: Cog6ToothIcon },
     { name: 'Settings', href: '/dashboard/profile', icon: Cog6ToothIcon },
-
   ];
 
   const isActive = (href) => {
@@ -54,7 +51,6 @@ const DashboardLayout = () => {
             <Route path="listings" element={<MyListings />} />
             <Route path="profile" element={<ProfileSettings />} />
             <Route path="transactions" element={<Transactions />} />
-            <Route path="ImpactRewards" element={<ImpactRewards />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         );

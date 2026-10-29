@@ -6,8 +6,6 @@ import DataTable from '../../components/ui/DataTable';
 import { 
   DevicePhoneMobileIcon, 
   CurrencyDollarIcon, 
-  SparklesIcon, 
-  ArrowTrendingUpIcon,
   TruckIcon
 } from '@heroicons/react/24/outline';
 import { getSellerListings } from '../../services/api';
@@ -40,11 +38,7 @@ const CorporateDashboard = () => {
   // Dynamic calculations
   const totalDevices = listings.length;
   const totalValue = listings.reduce((sum, item) => sum + (item.finalRecoveryValue || item.estimatedRecoveryValue?.estimatedValue || 0), 0);
-  const totalCO2 = listings.reduce((sum, item) => sum + (item.environmentalImpact?.co2AvoidedKg || 0), 0);
   const activePickups = listings.filter(item => ['PICKUP_SCHEDULED', 'COLLECTED', 'PROCESSING'].includes(item.status)).length;
-  
-  // Dynamic ESG Score
-  const esgScore = Math.min(100, 75 + Math.floor(totalCO2 / 100.0));
 
   const summaryData = [
     {
@@ -62,22 +56,6 @@ const CorporateDashboard = () => {
       changeType: 'positive',
       icon: CurrencyDollarIcon,
       color: 'eco-blue'
-    },
-    {
-      title: 'CO₂ Saved',
-      value: `${totalCO2.toFixed(1)} kg`,
-      change: 'Avoided footprint',
-      changeType: 'positive',
-      icon: SparklesIcon,
-      color: 'eco-emerald'
-    },
-    {
-      title: 'ESG Score',
-      value: `${esgScore}/100`,
-      change: 'Dynamic rating',
-      changeType: 'positive',
-      icon: ArrowTrendingUpIcon,
-      color: 'eco-purple'
     },
     {
       title: 'Active Logistics',
@@ -127,8 +105,7 @@ const CorporateDashboard = () => {
       : 'Operations',
     submitted: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A',
     status: item.status,
-    value: `₹ ${item.finalRecoveryValue || item.estimatedRecoveryValue?.estimatedValue || 0}`,
-    co2: `${(item.environmentalImpact?.co2AvoidedKg || 0).toFixed(1)} kg`
+    value: `₹ ${item.finalRecoveryValue || item.estimatedRecoveryValue?.estimatedValue || 0}`
   }));
 
   const getStatusClass = (status) => {
@@ -157,8 +134,7 @@ const CorporateDashboard = () => {
         </span>
       )
     },
-    { key: 'value', title: 'Est. Value' },
-    { key: 'co2', title: 'CO₂ Saved' }
+    { key: 'value', title: 'Est. Value' }
   ];
 
   return (

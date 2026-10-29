@@ -28,40 +28,35 @@ const SellerDashboard = () => {
       device: 'iPhone 12 Pro',
       date: '2024-01-15',
       status: 'Completed',
-      earnings: '$85',
-      co2: '12kg'
+      earnings: '$85'
     },
     {
       id: '2',
       device: 'MacBook Air 2020',
       date: '2024-01-10',
       status: 'Processing',
-      earnings: '$120',
-      co2: '18kg'
+      earnings: '$120'
     },
     {
       id: '3',
       device: 'iPad Pro 2021',
       date: '2024-01-08',
       status: 'Completed',
-      earnings: '$65',
-      co2: '8kg'
+      earnings: '$65'
     },
     {
       id: '4',
       device: 'Samsung Galaxy S21',
       date: '2024-01-05',
       status: 'Completed',
-      earnings: '$70',
-      co2: '10kg'
+      earnings: '$70'
     },
     {
       id: '5',
       device: 'Dell XPS 13',
       date: '2024-01-03',
       status: 'Pending',
-      earnings: '$95',
-      co2: '15kg'
+      earnings: '$95'
     }
   ];
 
@@ -77,8 +72,7 @@ const SellerDashboard = () => {
         </span>
       )
     },
-    { key: 'earnings', title: 'Earnings' },
-    { key: 'co2', title: 'CO₂ Saved' }
+    { key: 'earnings', title: 'Earnings' }
   ];
 
   return (
@@ -112,8 +106,7 @@ const SellerDashboard = () => {
             Turn Your E-Waste into Income 💰
           </h1>
           <p style={{ fontSize: '18px', marginTop: '10px', maxWidth: '600px' }}>
-            Every device you recycle reduces pollution, saves resources,
-            and earns you money. Start selling smarter. Start selling sustainably.
+            Recycle your old devices and earn competitive prices. Sell smarter with EcoTrace.
           </p>
           <div style={{ marginTop: '20px' }}>
             <span
@@ -124,7 +117,7 @@ const SellerDashboard = () => {
                 fontWeight: 600
               }}
             >
-              🌱 Make Impact. Earn More.
+              💰 Start Earning Today
             </span>
           </div>
         </div>
